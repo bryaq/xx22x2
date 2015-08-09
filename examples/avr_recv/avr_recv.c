@@ -24,7 +24,7 @@ enum{
 	EV_TIMER = _BV(0)
 };
 
-volatile unsigned char events;
+volatile unsigned char events, rx;
 
 void
 callback(unsigned long code)
@@ -65,7 +65,7 @@ main(void)
 		if(events & EV_TIMER){
 			events &= ~EV_TIMER;
 			led_off();
-			xx22x2_rx(PIND & RXD);
+			xx22x2_rx(rx);
 		}
 	}
 }
@@ -77,6 +77,7 @@ ISR(INT0_vect)
 
 ISR(TIMER1_COMPA_vect)
 {
+	rx = PIND & RXD;
 	events |= EV_TIMER;
 }
 

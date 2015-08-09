@@ -25,6 +25,7 @@ enum{
 };
 
 unsigned short events;
+unsigned char rx;
 
 void
 callback(unsigned long code)
@@ -64,7 +65,7 @@ main(void)
 		if(events & EV_TIMER){
 			events &= ~EV_TIMER;
 			led_off();
-			xx22x2_rx(P1IN & RXD);
+			xx22x2_rx(rx);
 		}
 	}
 }
@@ -79,6 +80,7 @@ ISR(PORT1, port1_isr)
 
 ISR(TIMERA0, timera0_isr)
 {
+	rx = P1IN & RXD;
 	events |= EV_TIMER;
 	LPM0_EXIT;
 }

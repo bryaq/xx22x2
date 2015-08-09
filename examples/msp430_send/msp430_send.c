@@ -25,6 +25,7 @@ enum{
 };
 
 unsigned short events;
+unsigned char tx;
 
 int
 main(void)
@@ -55,12 +56,9 @@ main(void)
 		LPM0;
 		if(events & EV_TIMER){
 			events &= ~EV_TIMER;
-			if((P1IN & BUTTON) == 0){
-				if(xx22x2_tx())
-					P1OUT |= TXD;
-				else
-					P1OUT &= ~TXD;
-			}else
+			if((P1IN & BUTTON) == 0)
+				tx = xx22x2_tx();
+			else
 				LPM4;
 		}
 	}
@@ -76,6 +74,10 @@ ISR(PORT1, port1_isr)
 
 ISR(TIMERA0, timera0_isr)
 {
+	if(tx)
+		P1OUT |= TXD;
+	else
+		P1OUT &= ~TXD;
 	events |= EV_TIMER;
 	LPM0_EXIT;
 }

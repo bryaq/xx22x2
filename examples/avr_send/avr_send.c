@@ -24,7 +24,7 @@ enum{
 	EV_TIMER = _BV(0)
 };
 
-volatile unsigned char events;
+volatile unsigned char events, tx;
 
 int
 main(void)
@@ -56,12 +56,9 @@ main(void)
 		sleep_mode();
 		if(events & EV_TIMER){
 			events &= ~EV_TIMER;
-			if((PIND & BUTTON) == 0){
-				if(xx22x2_tx())
-					PORTD |= TXD;
-				else
-					PORTD &= ~TXD;
-			}else{
+			if((PIND & BUTTON) == 0)
+				tx = xx22x2_tx();
+			else{
 				set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 				cli();
 				GICR |= _BV(INT1);	/* enable interrupt */
@@ -81,6 +78,10 @@ ISR(INT1_vect)
 
 ISR(TIMER1_COMPA_vect)
 {
+	if(tx)
+		PORTD |= TXD;
+	else
+		PORTD &= ~TXD;
 	events |= EV_TIMER;
 }
 
