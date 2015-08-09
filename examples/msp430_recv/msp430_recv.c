@@ -16,15 +16,16 @@
 #define led_on()	(P1OUT |= LED1)
 #define led_off()	(P1OUT &= ~LED1)
 
-#define F_CPU		2000000ul
+#define F_CPU		8000000ul
 #define F_OSC		27000ul
-#define SUBBIT		(((F_CPU) + (F_OSC) / 8) *4 / (F_OSC) - 1)
+#define SUBBIT		(((F_CPU) / 8 + (F_OSC) / 8) *4 / (F_OSC))
 
 enum{
-	EV_TIMER = BIT0
+	EV_TIMER = BIT0,
+	EV_RISING = BIT1
 };
 
-unsigned short events;
+unsigned short events, subbit, tcnt;
 unsigned char rx;
 
 void
@@ -41,8 +42,8 @@ main(void)
 	WDTCTL = WDTPW + WDTHOLD;	/* stop watchdog */
 	
 	DCOCTL = 0;
-	BCSCTL1 = 9;
-	DCOCTL = (0 << 5) | 13;			/* set DCO to 2 MHz */
+	BCSCTL1 = 13;
+	DCOCTL = (3 << 5) | 17;			/* set DCO to 8 MHz */
 	
 	P1DIR = LED1 | LED2 | TXD;
 	P1OUT = BUTTON | RXD;			/* select pullups/pulldowns */
@@ -53,15 +54,20 @@ main(void)
 	P2OUT = 0;					/* select pullups/pulldowns */
 	P2REN = 0xff;					/* enable pullups/pulldowns */
 	
-	TACTL = TASSEL_2 | MC_1;		/* Timer_A setup */
+	TACTL = TASSEL_2 | ID_3 | MC_2;	/* Timer_A continuous mode with /8 divider */
 	TACCTL0 = CCIE;				/* enable interrupt */
-	TACCR0 = SUBBIT;				/* set to subbit (1/8 bit) period */
+	subbit = SUBBIT;
+	TACCR0 = SUBBIT - 1;			/* set to subbit (1/8 bit) period */
 	
 	xx22x2_setcallback(callback);
 	
 	_EINT();						/* global interrupt enable */
 	while(1){
 		LPM0;
+		if(events & EV_RISING){
+			events &= ~EV_RISING;
+			xx22x2_detectosc((unsigned short *)&subbit, tcnt);
+		}
 		if(events & EV_TIMER){
 			events &= ~EV_TIMER;
 			led_off();
@@ -74,13 +80,17 @@ ISR(PORT1, port1_isr)
 {
 	if(P1IFG & RXD){				/* signal front 0->1 */
 		P1IFG &= ~RXD;			/* clear flag */
-		TAR = SUBBIT / 2;			/* calibrate timer */
+		tcnt = TAR;
+		TACCR0 = tcnt + subbit / 2;	/* calibrate timer */
+		events |= EV_RISING;
+		LPM0_EXIT;
 	}
 }
 
 ISR(TIMERA0, timera0_isr)
 {
 	rx = P1IN & RXD;
+	TACCR0 += subbit;
 	events |= EV_TIMER;
 	LPM0_EXIT;
 }

@@ -16,9 +16,9 @@
 #define led_on()	(P1OUT |= LED1)
 #define led_off()	(P1OUT &= ~LED1)
 
-#define F_CPU		2000000ul
+#define F_CPU		8000000ul
 #define F_OSC		27000ul
-#define SUBBIT		(((F_CPU) + (F_OSC) / 8) *4 / (F_OSC) - 1)
+#define SUBBIT		(((F_CPU) + (F_OSC) / 8) *4 / (F_OSC))
 
 enum{
 	EV_TIMER = BIT0
@@ -33,8 +33,8 @@ main(void)
 	WDTCTL = WDTPW + WDTHOLD;	/* stop watchdog */
 	
 	DCOCTL = 0;
-	BCSCTL1 = 9;
-	DCOCTL = (0 << 5) | 13;			/* set DCO to 2 MHz */
+	BCSCTL1 = 13;
+	DCOCTL = (3 << 5) | 17;			/* set DCO to 8 MHz */
 	
 	P1DIR = LED1 | LED2 | TXD;
 	P1OUT = BUTTON;				/* select pullups/pulldowns */
@@ -47,7 +47,7 @@ main(void)
 	
 	TACTL = TASSEL_2 | MC_1;		/* Timer_A setup */
 	TACCTL0 = CCIE;				/* enable interrupt */
-	TACCR0 = SUBBIT;				/* set to subbit (1/8 bit) period */
+	TACCR0 = SUBBIT - 1;			/* set to subbit (1/8 bit) period */
 	
 	xx22x2_setcode(MYCODE);
 	

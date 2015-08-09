@@ -18,12 +18,14 @@
 
 #define F_CPU		8000000ul
 #define F_OSC		27000ul
-#define SUBBIT		(((F_CPU) + (F_OSC) / 8) *4 / (F_OSC) - 1)
+#define SUBBIT		(((F_CPU) / 8 + (F_OSC) / 8) *4 / (F_OSC))
 
 enum{
-	EV_TIMER = _BV(0)
+	EV_TIMER = _BV(0),
+	EV_RISING = _BV(1)
 };
 
+volatile unsigned short subbit, tcnt;
 volatile unsigned char events, rx;
 
 void
@@ -52,9 +54,10 @@ main(void)
 	MCUCR |= _BV(ISC01) | _BV(ISC00);	/* interrupt on rising edge */
 	GICR |= _BV(INT0);				/* enable interrupt */
 	
-	TCCR1B = _BV(WGM12) | _BV(CS10);	/* Timer1 setup */
+	TCCR1B = _BV(CS11);			/* Timer1 normal mode with /8 prescaler*/
 	TIMSK = _BV(OCIE1A);			/* enable interrupt */
-	OCR1A = SUBBIT;				/* set to subbit (1/8 bit) period */
+	subbit = SUBBIT;
+	OCR1A = SUBBIT - 1;			/* set to subbit (1/8 bit) period */
 	
 	xx22x2_setcallback(callback);
 	
@@ -62,6 +65,10 @@ main(void)
 	set_sleep_mode(SLEEP_MODE_IDLE);
 	while(1){
 		sleep_mode();
+		if(events & EV_RISING){
+			events &= ~EV_RISING;
+			xx22x2_detectosc((unsigned short *)&subbit, tcnt);
+		}
 		if(events & EV_TIMER){
 			events &= ~EV_TIMER;
 			led_off();
@@ -72,12 +79,15 @@ main(void)
 
 ISR(INT0_vect)
 {
-	TCNT1 = SUBBIT / 2;				/* calibrate timer */
+	tcnt = TCNT1;
+	OCR1A = tcnt + subbit / 2;		/* calibrate timer */
+	events |= EV_RISING;
 }
 
 ISR(TIMER1_COMPA_vect)
 {
 	rx = PIND & RXD;
+	OCR1A += subbit;
 	events |= EV_TIMER;
 }
 
