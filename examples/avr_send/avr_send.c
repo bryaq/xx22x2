@@ -21,8 +21,7 @@
 #define SUBBIT		(((F_CPU) + (F_OSC) / 8) *4 / (F_OSC) - 1)
 
 enum{
-	EV_TIMER = _BV(0),
-	EV_BUTTON = _BV(1)
+	EV_TIMER = _BV(0)
 };
 
 volatile unsigned char events;
@@ -55,10 +54,6 @@ main(void)
 	while(1){
 		set_sleep_mode(SLEEP_MODE_IDLE);
 		sleep_mode();
-		if(events & EV_BUTTON){
-			events &= ~EV_BUTTON;
-			GICR &= ~_BV(INT1);	/* disable interrupt */
-		}
 		if(events & EV_TIMER){
 			events &= ~EV_TIMER;
 			if((PIND & BUTTON) == 0){
@@ -67,9 +62,13 @@ main(void)
 				else
 					PORTD &= ~TXD;
 			}else{
-				GICR |= _BV(INT1);	/* enable interrupt */
 				set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-				sleep_mode();
+				cli();
+				GICR |= _BV(INT1);	/* enable interrupt */
+				sleep_enable();
+				sei();
+				sleep_cpu();
+				sleep_disable();
 			}
 		}
 	}
@@ -77,7 +76,7 @@ main(void)
 
 ISR(INT1_vect)
 {
-	events |= EV_BUTTON;
+	GICR &= ~_BV(INT1);			/* disable interrupt */
 }
 
 ISR(TIMER1_COMPA_vect)
