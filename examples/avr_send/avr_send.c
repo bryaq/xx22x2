@@ -18,7 +18,7 @@
 
 #define F_CPU		8000000ul
 #define F_OSC		27000ul
-#define SUBBIT		(((F_CPU) + (F_OSC) / 8) *4 / (F_OSC))
+#define SUBBIT		(((F_CPU) + (F_OSC) / 8) * 4 / (F_OSC))
 
 enum{
 	EV_TIMER = _BV(0)

@@ -18,7 +18,7 @@
 
 #define F_CPU		8000000ul
 #define F_OSC		27000ul
-#define SUBBIT		(((F_CPU) / 8 + (F_OSC) / 8) *4 / (F_OSC))
+#define SUBBIT		(((F_CPU) / 8 + (F_OSC) / 8) * 4 / (F_OSC))
 
 enum{
 	EV_TIMER = BIT0,
@@ -66,7 +66,7 @@ main(void)
 		LPM0;
 		if(events & EV_RISING){
 			events &= ~EV_RISING;
-			xx22x2_detectosc((unsigned short *)&subbit, tcnt);
+			xx22x2_detectosc(&subbit, tcnt);
 		}
 		if(events & EV_TIMER){
 			events &= ~EV_TIMER;

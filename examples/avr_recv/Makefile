@@ -2,7 +2,7 @@ NAME=avr_recv
 OBJS=avr_recv.o xx22x2.o
 CPU=atmega8
 CC=avr-gcc
-CFLAGS=-ansi -Wall -pedantic -Os -g -mmcu=$(CPU) -I../../src
+CFLAGS=-ansi -Wall -pedantic -Os -g -mmcu=$(CPU) -I../..
 LDFLAGS=-mmcu=$(CPU)
 
 .PHONY:	all prog clean
@@ -12,7 +12,7 @@ all:	$(NAME).elf
 $(NAME).elf:	$(OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS)
 
-xx22x2.o:	../../src/xx22x2.c
+xx22x2.o:	../../xx22x2.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 prog:	$(NAME).hex
