@@ -1,6 +1,6 @@
-#define TRIT0	0x01ul
-#define TRIT1	0x02ul
-#define TRITF	0x03ul
+#define TRIT0	0x0ul
+#define TRIT1	0x3ul
+#define TRITF	0x1ul
 
 extern void xx22x2_setcallback(void (*f)(unsigned long code));
 extern void xx22x2_setcode(unsigned long code);

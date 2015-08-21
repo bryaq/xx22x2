@@ -3,9 +3,10 @@
 
 #include "xx22x2.h"
 
-/* f0 10 f0 11 00 ff sz zz */
-#define MYCODE	((TRITF << 30) | (TRIT0 << 28) | (TRIT1 << 26) | (TRIT0 << 24) | (TRITF << 22) | (TRIT0 << 20) \
-				| (TRIT1 << 18) | (TRIT1 << 16) | (TRIT0 << 14) | (TRIT0 << 12) | (TRITF << 10) | (TRITF << 8))
+/* f0 10 f0 11 00 ff */
+#define MYCODE	((TRITF << 22) | (TRIT0 << 20) | (TRIT1 << 18) | (TRIT0 << 16) \
+				| (TRITF << 14) | (TRIT0 << 12) | (TRIT1 << 10) | (TRIT1 << 8) \
+				| (TRIT0 << 6) | (TRIT0 << 4) | (TRITF << 2) | (TRITF << 0))
 
 #define LED1		BIT0
 #define LED2		BIT6
@@ -30,7 +31,7 @@ unsigned char tx;
 int
 main(void)
 {
-	WDTCTL = WDTPW + WDTHOLD;	/* stop watchdog */
+	WDTCTL = WDTPW | WDTHOLD;	/* stop watchdog */
 	
 	DCOCTL = 0;
 	BCSCTL1 = 13;
