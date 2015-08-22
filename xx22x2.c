@@ -6,24 +6,12 @@
 #define BITZ	0x0
 
 static void (*callback)(unsigned long code);
-static unsigned long txcode;
+unsigned long xx22x2_txcode;
 
 void
 xx22x2_setcallback(void (*f)(unsigned long code))
 {
 	callback = f;
-}
-
-void
-xx22x2_setcode(unsigned long code)
-{
-	unsigned char i;
-	
-	for(i = 0; i < 24; i++){
-		txcode <<= 1;
-		txcode |= code & 0x1;
-		code >>= 1;
-	}
 }
 
 void
@@ -74,9 +62,9 @@ xx22x2_tx(void)
 	if((cnt & 0x03) == 0){			/* every 4 subbits */
 		if(cnt < 24 * 4){
 			if(cnt == 0)
-				code = txcode;
-			bit = (code & 0x1) ? BIT1 : BIT0;
-			code >>= 1;
+				code = xx22x2_txcode;
+			bit = (code & 0x00800000) ? BIT1 : BIT0;
+			code <<= 1;
 		}else if(cnt == 24 * 4)
 			bit = BIT0;
 	}

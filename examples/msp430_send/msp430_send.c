@@ -50,7 +50,7 @@ main(void)
 	TACCTL0 = CCIE;				/* enable interrupt */
 	TACCR0 = SUBBIT - 1;			/* set to subbit (1/8 bit) period */
 	
-	xx22x2_setcode(MYCODE);
+	xx22x2_txcode = MYCODE;
 	
 	_EINT();						/* global interrupt enable */
 	while(1){

@@ -49,7 +49,7 @@ main(void)
 	TIMSK = _BV(OCIE1A);			/* enable interrupt */
 	OCR1A = SUBBIT - 1;			/* set to subbit (1/8 bit) period */
 	
-	xx22x2_setcode(MYCODE);
+	xx22x2_txcode = MYCODE;
 	
 	sei();							/* global interrupt enable */
 	while(1){
