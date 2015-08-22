@@ -5,14 +5,8 @@
 #define BITS	0x8
 #define BITZ	0x0
 
-static void (*callback)(unsigned long code);
+void (*xx22x2_callback)(unsigned long code);
 unsigned long xx22x2_txcode;
-
-void
-xx22x2_setcallback(void (*f)(unsigned long code))
-{
-	callback = f;
-}
 
 void
 xx22x2_rx(unsigned char subbit)
@@ -46,8 +40,8 @@ xx22x2_rx(unsigned char subbit)
 		}
 		if(cnt == 32 * 4){			/* complete data word */
 			cnt = 0;
-			if(callback)
-				callback(code & 0x00ffffff);
+			if(xx22x2_callback)
+				xx22x2_callback(code & 0x00ffffff);
 		}
 	}
 }

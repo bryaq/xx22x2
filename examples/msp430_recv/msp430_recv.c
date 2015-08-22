@@ -60,7 +60,7 @@ main(void)
 	subbit = SUBBIT;
 	TACCR0 = SUBBIT - 1;			/* set to subbit (1/8 bit) period */
 	
-	xx22x2_setcallback(callback);
+	xx22x2_callback = callback;
 	
 	_EINT();						/* global interrupt enable */
 	while(1){

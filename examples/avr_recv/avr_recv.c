@@ -60,7 +60,7 @@ main(void)
 	subbit = SUBBIT;
 	OCR1A = SUBBIT - 1;			/* set to subbit (1/8 bit) period */
 	
-	xx22x2_setcallback(callback);
+	xx22x2_callback = callback;
 	
 	sei();							/* global interrupt enable */
 	set_sleep_mode(SLEEP_MODE_IDLE);
