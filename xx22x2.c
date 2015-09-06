@@ -60,7 +60,7 @@ xx22x2_tx(void)
 			bit = (code & 0x00800000) ? BIT1 : BIT0;
 			code <<= 1;
 		}else if(cnt == 24 * 4)
-			bit = BIT0;
+			bit = BITS;
 	}
 	cnt++;
 	if(cnt == 32 * 4)
