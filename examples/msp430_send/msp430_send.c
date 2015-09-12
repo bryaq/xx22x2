@@ -40,6 +40,7 @@ main(void)
 	P1DIR = LED1 | LED2 | TXD;
 	P1OUT = BUTTON;				/* select pullups/pulldowns */
 	P1REN = ~(LED1 | LED2 | TXD);		/* enable pullups/pulldowns */
+	P1IES = BUTTON;
 	P1IE = BUTTON;				/* enable interrupt */
 	
 	P2SEL = 0;						/* no alternative functions */
