@@ -19,14 +19,14 @@
 
 #define F_CPU		8000000ul
 #define F_OSC		27000ul
-#define SUBBIT		(((F_CPU) / 8 + (F_OSC) / 8) * 4 / (F_OSC))
+#define TSUB		(((F_CPU) / 8 + (F_OSC) / 8) * 4 / (F_OSC))
 
 enum{
 	EV_TIMER = BIT0,
 	EV_RISING = BIT1
 };
 
-unsigned short events, subbit, tcnt;
+unsigned short events, tsub, tcnt;
 unsigned char rx;
 
 void
@@ -57,8 +57,8 @@ main(void)
 	
 	TACTL = TASSEL_2 | ID_3 | MC_2;	/* Timer_A continuous mode with /8 divider */
 	TACCTL0 = CCIE;				/* enable interrupt */
-	subbit = SUBBIT;
-	TACCR0 = SUBBIT - 1;			/* set to subbit (1/8 bit) period */
+	tsub = TSUB;
+	TACCR0 = TSUB - 1;				/* set to tsub (1/8 bit) period */
 	
 	xx22x2_callback = callback;
 	
@@ -67,7 +67,7 @@ main(void)
 		LPM0;
 		if(events & EV_RISING){
 			events &= ~EV_RISING;
-			xx22x2_detectosc(&subbit, tcnt);
+			xx22x2_detectosc(&tsub, tcnt);
 		}
 		if(events & EV_TIMER){
 			events &= ~EV_TIMER;
@@ -82,7 +82,7 @@ ISR(PORT1, port1_isr)
 	if(P1IFG & RXD){				/* signal front 0->1 */
 		P1IFG &= ~RXD;			/* clear flag */
 		tcnt = TAR;
-		TACCR0 = tcnt + subbit / 2;	/* calibrate timer */
+		TACCR0 = tcnt + tsub / 2;		/* calibrate timer */
 		events |= EV_RISING;
 		LPM0_EXIT;
 	}
@@ -91,7 +91,7 @@ ISR(PORT1, port1_isr)
 ISR(TIMERA0, timera0_isr)
 {
 	rx = P1IN & RXD;
-	TACCR0 += subbit;
+	TACCR0 += tsub;
 	events |= EV_TIMER;
 	LPM0_EXIT;
 }

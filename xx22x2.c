@@ -68,9 +68,9 @@ xx22x2_tx(void)
 	return bit & 0x08;				/* decode into subbits */
 }
 
-/* XXX: detects correctly only if real subbit < 2048 */
+/* XXX: detects correctly only if real tsub < 2048 */
 void
-xx22x2_detectosc(unsigned short *subbitp, unsigned short tcnt)
+xx22x2_detectosc(unsigned short *tsubp, unsigned short tcnt)
 {
 	static unsigned long sum;
 	static unsigned short start;
@@ -78,7 +78,7 @@ xx22x2_detectosc(unsigned short *subbitp, unsigned short tcnt)
 	
 	sum += (tcnt - (unsigned short)sum);
 	if(cnt == 25){
-		*subbitp = (sum - start) / 128;
+		*tsubp = (sum - start) / 128;
 		start = tcnt;
 		sum = tcnt;
 		cnt = 0;

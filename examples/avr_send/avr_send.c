@@ -19,7 +19,7 @@
 
 #define F_CPU		8000000ul
 #define F_OSC		27000ul
-#define SUBBIT		(((F_CPU) + (F_OSC) / 8) * 4 / (F_OSC))
+#define TSUB		(((F_CPU) + (F_OSC) / 8) * 4 / (F_OSC))
 
 enum{
 	EV_TIMER = _BV(0)
@@ -47,7 +47,7 @@ main(void)
 	
 	TCCR1B = _BV(WGM12) | _BV(CS10);	/* Timer1 setup */
 	TIMSK = _BV(OCIE1A);			/* enable interrupt */
-	OCR1A = SUBBIT - 1;			/* set to subbit (1/8 bit) period */
+	OCR1A = TSUB - 1;				/* set to tsub (1/8 bit) period */
 	
 	xx22x2_txcode = MYCODE;
 	

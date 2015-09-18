@@ -19,7 +19,7 @@
 
 #define F_CPU		8000000ul
 #define F_OSC		27000ul
-#define SUBBIT		(((F_CPU) + (F_OSC) / 8) * 4 / (F_OSC))
+#define TSUB		(((F_CPU) + (F_OSC) / 8) * 4 / (F_OSC))
 
 enum{
 	EV_TIMER = BIT0
@@ -49,7 +49,7 @@ main(void)
 	
 	TACTL = TASSEL_2 | MC_1;		/* Timer_A setup */
 	TACCTL0 = CCIE;				/* enable interrupt */
-	TACCR0 = SUBBIT - 1;			/* set to subbit (1/8 bit) period */
+	TACCR0 = TSUB - 1;				/* set to tsub (1/8 bit) period */
 	
 	xx22x2_txcode = MYCODE;
 	

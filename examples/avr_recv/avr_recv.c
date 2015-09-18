@@ -19,14 +19,14 @@
 
 #define F_CPU		8000000ul
 #define F_OSC		27000ul
-#define SUBBIT		(((F_CPU) / 8 + (F_OSC) / 8) * 4 / (F_OSC))
+#define TSUB		(((F_CPU) / 8 + (F_OSC) / 8) * 4 / (F_OSC))
 
 enum{
 	EV_TIMER = _BV(0),
 	EV_RISING = _BV(1)
 };
 
-volatile unsigned short subbit, tcnt;
+volatile unsigned short tsub, tcnt;
 volatile unsigned char events, rx;
 
 void
@@ -57,8 +57,8 @@ main(void)
 	
 	TCCR1B = _BV(CS11);			/* Timer1 normal mode with /8 prescaler*/
 	TIMSK = _BV(OCIE1A);			/* enable interrupt */
-	subbit = SUBBIT;
-	OCR1A = SUBBIT - 1;			/* set to subbit (1/8 bit) period */
+	tsub = TSUB;
+	OCR1A = TSUB - 1;				/* set to tsub (1/8 bit) period */
 	
 	xx22x2_callback = callback;
 	
@@ -68,7 +68,7 @@ main(void)
 		sleep_mode();
 		if(events & EV_RISING){
 			events &= ~EV_RISING;
-			xx22x2_detectosc((unsigned short *)&subbit, tcnt);
+			xx22x2_detectosc((unsigned short *)&tsub, tcnt);
 		}
 		if(events & EV_TIMER){
 			events &= ~EV_TIMER;
@@ -81,14 +81,14 @@ main(void)
 ISR(INT0_vect)
 {
 	tcnt = TCNT1;
-	OCR1A = tcnt + subbit / 2;		/* calibrate timer */
+	OCR1A = tcnt + tsub / 2;			/* calibrate timer */
 	events |= EV_RISING;
 }
 
 ISR(TIMER1_COMPA_vect)
 {
 	rx = PIND & RXD;
-	OCR1A += subbit;
+	OCR1A += tsub;
 	events |= EV_TIMER;
 }
 
